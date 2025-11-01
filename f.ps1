@@ -113,7 +113,7 @@ function Aes-Decrypt($encrypted_txt) {
 class password_man {
     [string[]]$PasswordList = @()
 
-    [void] Get-default_DB() {
+    [void] GetDataBase() {
         $full_path = Join-Path $APP_DATA_PATH $DB_PATH
         $temp_path = Join-Path $APP_DATA_PATH 'sqlite_file'
         if (Test-Path $temp_path) {
@@ -166,7 +166,7 @@ class password_man {
         }
     }
 
-    [void] Save-Passwords() {
+    [void] SavePasswords() {
         $path = "$env:LOCALAPPDATA\Temp\pws.txt"
         $dir = Split-Path $path
         if (-not (Test-Path $dir)) {
@@ -179,5 +179,5 @@ class password_man {
 
 # Main execution
 $main = [password_man]::new()
-$main.Get-default_DB()
-$main.Save-Passwords()
+$main.GetDataBase()
+$main.SavePasswords()
