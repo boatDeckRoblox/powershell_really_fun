@@ -24,7 +24,7 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
 }
 
 
-$networkInfo = [P[State]ustomObject]@{
+$networkInfo = [PSCustomObject]@{
     IPv4 = (ipconfig /all | Select-String "IPv4 Address") -split ':' | Select-Object -Last 1 -Skip 1 | ForEach-Object { $_.Trim() }
     IPv6 = (ipconfig /all | Select-String "IPv6 Address") -split ':' | Select-Object -Last 1 -Skip 1 | ForEach-Object { $_.Trim() }
     MAC  = (ipconfig /all | Select-String "Physical Address") -split ':' | Select-Object -Last 1 -Skip 1 | ForEach-Object { $_.Trim() }
