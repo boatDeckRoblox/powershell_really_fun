@@ -39,6 +39,7 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
 
 # cleanup
 cls
+Start-Sleep -Seconds 3
 Remove-Item -Path "$wifiFile" -Force
 Remove-Item -Path "$e\ipcfg.txt" -Force
 Remove-Item -Path "$zip" -Force
