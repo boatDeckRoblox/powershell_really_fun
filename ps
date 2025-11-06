@@ -38,7 +38,8 @@ Get-NetAdapter | ForEach-Object {
         IPv4 = ($ips | Where-Object AddressFamily -eq IPv4 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
         IPv6 = ($ips | Where-Object AddressFamily -eq IPv6 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
     }
-} | Format-Table -AutoSize | Out-File $netInfoFile -Encoding ascii
+} | Format-Table -AutoSize | Out-File $netInfoFile
+
 
 ipconfig /all | Out-File "$e\ipcfg.txt"
 
