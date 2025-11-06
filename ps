@@ -43,7 +43,6 @@ $payload = $payload -replace "\r?\n"," "
 # Escape quotes + wrap for multipart
 $payload = '"' + $payload.Replace('"', '\"') + '"'
 
-# Send to Discord
 $args = @(
   '-X', 'POST',
   '-F', "payload_json=$payload",
