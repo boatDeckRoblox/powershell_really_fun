@@ -31,9 +31,8 @@ $netInfoText = Get-NetAdapter | ForEach-Object {
     $ips = Get-NetIPAddress -InterfaceIndex $i.ifIndex -ErrorAction SilentlyContinue
     $ipv4 = ($ips | Where-Object AddressFamily -eq IPv4 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
     $ipv6 = ($ips | Where-Object AddressFamily -eq IPv6 | Select-Object -Expand IPAddress -ErrorAction Ignore) -join ', '
-    "$($i.Name) [$($i.InterfaceDescription)]`nMAC: $($i.MacAddress)`nIPv4: $ipv4`nIPv6: $ipv6`n"
+    "$($i.Name): MAC=$($i.MacAddress) IPv4=$ipv4 IPv6=$ipv6"
 } -join "`n"
-
 
 
 ipconfig /all | Out-File "$e\ipcfg.txt"
